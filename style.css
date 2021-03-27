@@ -1,0 +1,39 @@
+body {
+    font-family: monospace;
+    font-weight: bolder;
+    font-size: 18px;
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+}
+
+.bar {
+    position: absolute;
+    left: 0;
+
+    width: calc(100% - 8px);
+    height: 42px;
+    line-height: 42px;
+
+    padding-left: 8px;
+
+    background-color: #000000;
+    color: black;
+}
+
+#top-bar { top: 0; }
+
+#turn-info, #highlighted-hex {
+    position: absolute;
+    right: 8px;
+}
+
+#bottom-bar { bottom: 0 }
+
+a { color: black; }

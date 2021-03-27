@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="./common.js"></script>
+        <script src="./client.js"></script>
+
+        <link rel="stylesheet" href="./style.css">
+    </head>
+
+    <body onload="setup()">
+        <div id="top-bar" class="bar">
+            <a id="join-link" href=""></a>
+            <span id="your-info" hidden="true"></span>
+            <span id="turn-info" hidden="true"></span>
+        </div>
+
+        <canvas id="canvas" width="800" height="600"></canvas>
+
+        <div id="bottom-bar" class="bar">
+            <span id="help">Send the link on top to a friend to start a game</span>
+            <span id="moves-count" hidden="true"></span>
+            <span id="highlighted-hex" hidden="true"></span>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "hex-node",
+  "version": "1.0.0",
+  "description": "node.js multiplayer implementation of the tabletop game Hex",
+  "author": "Michele Bucelli",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.0.0"
+  }
+}
