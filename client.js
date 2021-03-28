@@ -271,6 +271,13 @@ let update_ui_game = function() {
 
   $("#highlighted-hex")
       .text("(" + highlighted_hex.i + ", " + highlighted_hex.j + ")");
+
+  if (game.moves == 1 && game.turn == player_side && !game.swapped)
+    $("#swap")
+        .css("background-color", colors_board[player_side])
+        .on("click", () => { socket.emit("swap"); });
+  else
+    $("#swap").css("background-color", colors_board[0]).off("click");
 };
 
 // Switch UI state.

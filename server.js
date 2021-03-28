@@ -133,7 +133,7 @@ let games = [];
 
 // Start a new game between two players.
 let startGame = function(player1, player2) {
-  let game = new hex.Game(player1.board_size);
+  let game = new hex.Game(player1.board_size, player1.swap_rule);
   let gameEntry = [ player1, player2, game ];
   game.id = newId(games);
 
@@ -141,6 +141,9 @@ let startGame = function(player1, player2) {
 
   player1.status = "game";
   player2.status = "game";
+
+  player1.side = 1;
+  player2.side = 2;
 
   // Tell each player which side they are.
   player1.emit("playerSide", 1);
@@ -153,10 +156,11 @@ let startGame = function(player1, player2) {
   // Be ready to receive moves from the players: if the move is valid, we apply
   // it, then transmit again the state to both clients.
   player1.on("move", (move) => {
-    if (game.turn == 1 && game.move(move.i, move.j)) {
+    if (game.turn == player1.side && game.move(move.i, move.j)) {
       if (game.finished) {
-        console.log("[  game-" + game.id + "] finished! player 1 wins.");
-        endGame(gameEntry, "player 1 wins");
+        console.log("[  game-" + game.id + "] finished! player " +
+                    player1.side + " wins.");
+        endGame(gameEntry, "player " + player1.side + " wins");
       }
 
       player1.emit("gameState", game);
@@ -164,12 +168,55 @@ let startGame = function(player1, player2) {
     }
   });
   player2.on("move", (move) => {
-    if (game.turn == 2 && game.move(move.i, move.j)) {
+    if (game.turn == player2.side && game.move(move.i, move.j)) {
       if (game.finished) {
-        console.log("[  game-" + game.id + "] finished! player 2 wins.");
-        endGame(gameEntry, "player 2 wins");
+        console.log("[  game-" + game.id + "] finished! player " +
+                    player2.side + " wins.");
+        endGame(gameEntry, "player " + player2.side + " wins");
       }
 
+      player1.emit("gameState", game);
+      player2.emit("gameState", game);
+    }
+  });
+
+  // Swap rule.
+  player1.on("swap", () => {
+    if (game.moves == 1 && game.turn == player1.side && !game.swapped) {
+      let tmp = player1.side;
+      player1.side = player2.side;
+      player2.side = tmp;
+      game.swapped = true;
+
+      // Swap the two players.
+      gameEntry[0] = player2;
+      gameEntry[1] = player1;
+
+      // Tell the two players the new sides.
+      player1.emit("playerSide", player1.side);
+      player2.emit("playerSide", player2.side);
+
+      // Resend game states.
+      player1.emit("gameState", game);
+      player2.emit("gameState", game);
+    }
+  });
+  player2.on("swap", () => {
+    if (game.moves == 1 && game.turn == player2.side && !game.swapped) {
+      let tmp = player1.side;
+      player1.side = player2.side;
+      player2.side = tmp;
+      game.swapped = true;
+
+      // Swap the two players.
+      gameEntry[0] = player2;
+      gameEntry[1] = player1;
+
+      // Tell the two players the new sides.
+      player1.emit("playerSide", player1.side);
+      player2.emit("playerSide", player2.side);
+
+      // Resend game states.
       player1.emit("gameState", game);
       player2.emit("gameState", game);
     }

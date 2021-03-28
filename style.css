@@ -117,6 +117,21 @@ a { color: black; }
     height: 42px;
     text-align: center;
     cursor: pointer;
+    line-height: 42px;
+}
+
+#swap {
+    width: 128px;
+    position: absolute;
+    bottom: 50px;
+    left: 8px;
+}
+
+#surrender {
+    width: 128px;
+    position: absolute;
+    bottom: 100px;
+    left: 8px;
 }
 
 #canvas {

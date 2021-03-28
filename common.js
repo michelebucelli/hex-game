@@ -119,7 +119,7 @@ let HexBoard = function(size) {
 };
 
 // Game object.
-let HexGame = function(board_size) {
+let HexGame = function(board_size, swap_rule) {
   // Game board.
   this.board = new HexBoard(board_size);
 
@@ -134,6 +134,12 @@ let HexGame = function(board_size) {
 
   // Winner.
   this.winner = 0;
+
+  // Whether swap rule is enabled or not.
+  this.swap_rule = swap_rule;
+
+  // Whether swap rule was used or not.
+  this.swapped = false;
 
   // Apply a move to the board and go to next player if the move was successful.
   this.move = function(i, j) {
