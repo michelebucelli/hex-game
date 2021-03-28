@@ -65,8 +65,27 @@ let draw_hex = function(ctxt, x, y, radius, color, stroke_color) {
   ctxt.fill();
 
   if (stroke_color) {
+    radius = radius * 0.75;
+    let x1 = Math.round(x + radius * sqrt_3_halves);
+    let x2 = Math.round(x);
+    let x3 = Math.round(x - radius * sqrt_3_halves);
+
+    let y1 = Math.round(y - radius);
+    let y2 = Math.round(y - radius * 0.5);
+    let y3 = Math.round(y + radius * 0.5);
+    let y4 = Math.round(y + radius);
+
+    ctxt.beginPath();
+    ctxt.moveTo(x2, y1);
+    ctxt.lineTo(x1, y2);
+    ctxt.lineTo(x1, y3);
+    ctxt.lineTo(x2, y4);
+    ctxt.lineTo(x3, y3);
+    ctxt.lineTo(x3, y2);
+    ctxt.closePath();
+
     ctxt.strokeStyle = stroke_color;
-    ctxt.lineWidth = hex_margin;
+    ctxt.lineWidth = 2 * hex_margin;
     ctxt.stroke();
   }
 };
@@ -79,12 +98,22 @@ let draw_board = function(ctxt, board, highlighted) {
         let xy = hex_to_cnvs(i, j, hex_radius, hex_margin);
         let x = board_offset_x + xy.x;
         let y = board_offset_y + xy.y;
-        let stroke_color = (highlighted.i == i && highlighted.j == j)
-                               ? colors_board[player_side]
-                               : "white";
+        let stroke_color = undefined;
+
+        if (i == 0 || j == 0 || i == board.tiles.length - 1 ||
+            j == board.tiles.length - 1)
+          stroke_color = "black";
+        else if (i == highlighted_hex.i && j == highlighted_hex.j)
+          stroke_color = colors_board[player_side];
 
         draw_hex(ctxt, x, y, hex_radius, colors_board[board.tiles[i][j]],
                  stroke_color);
+
+        if (i == 0 || j == 0 || i == board.tiles.length - 1 ||
+            j == board.tiles.length - 1) {
+          draw_hex(ctxt, x, y, hex_radius, colors_board[board.tiles[i][j]],
+                   "black");
+        }
       }
 };
 
@@ -170,7 +199,7 @@ let setup_ui = function() {
     }
 
     // Hide or show the join url.
-  }, 1000.0 / 10);
+  }, 1000.0 / 60);
 };
 
 // GAME CONTROL/////////////////////////////////////////////////////////////////
@@ -210,10 +239,11 @@ let setup_connection = function() {
   socket.on("gameState", (data) => {
     // Adjust canvas size to match that of the board.
     if (!game) {
-      cnvs.width = 2 * board_offset_x + 1.5 * (data.board.size - 1) *
-                                            (sqrt_3 * hex_radius + hex_margin);
+      cnvs.width =
+          2 * board_offset_x +
+          1.5 * (data.board.size - 1) * (sqrt_3 * (hex_radius + hex_margin));
       cnvs.height = 2 * board_offset_y +
-                    (1.5 * hex_radius + hex_margin) * (data.board.size - 1);
+                    (1.5 * (hex_radius + hex_margin)) * (data.board.size - 1);
     }
 
     // Store game state.

@@ -107,17 +107,18 @@ io.on("connection", (socket) => {
   // Add to the array of connected clients.
   clients.push(socket);
 
-  console.log("[client-" + socket.id + "] connected and waiting in the lobby.");
+  console.log("[client-" + socket.id + "] connected.");
 });
 
 // GAME LOGIC //////////////////////////////////////////////////////////////////
 
-// Array of games. Each entry is made of player1, player2, game state.
+// Array of games. Each entry is made of player1 socket, player2 socket, game
+// state object.
 let games = [];
 
 // Start a new game between two players.
 let startGame = function(player1, player2) {
-  let game = new hex.Game(10);
+  let game = new hex.Game(16);
   game.id = newId(games);
 
   games.push([ player1, player2, game ]);
@@ -138,7 +139,7 @@ let startGame = function(player1, player2) {
   player1.on("move", (move) => {
     if (game.turn == 1 && game.move(move.i, move.j)) {
       if (game.finished)
-        console.log("[game-" + game.id + "  ] finished! player 1 wins.");
+        console.log("[  game-" + game.id + "] finished! player 1 wins.");
 
       player1.emit("gameState", game);
       player2.emit("gameState", game);
@@ -147,20 +148,20 @@ let startGame = function(player1, player2) {
   player2.on("move", (move) => {
     if (game.turn == 2 && game.move(move.i, move.j)) {
       if (game.finished)
-        console.log("[game-" + game.id + "  ] finished! player 2 wins.");
+        console.log("[  game-" + game.id + "] finished! player 2 wins.");
 
       player1.emit("gameState", game);
       player2.emit("gameState", game);
     }
   });
 
-  console.log("[game-" + game.id + "  ] started between client-" + player1.id +
+  console.log("[  game-" + game.id + "] started between client-" + player1.id +
               " and client-" + player2.id + ".");
 };
 
 // End a game before it's finished.
 let endGame = function(game, reason) {
-  console.log("[game-" + game[2].id + "  ] ending due to " + reason);
+  console.log("[  game-" + game[2].id + "] ending due to " + reason);
 };
 
 // HTTP SERVER /////////////////////////////////////////////////////////////////
