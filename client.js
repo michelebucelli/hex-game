@@ -245,7 +245,7 @@ let setup_connection = function() {
     let joinId = params.get("join");
 
     if (joinId)
-      socket.emit("join", parseInt(joinId));
+      socket.emit("join", joinId);
   });
 };
 
