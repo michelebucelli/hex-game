@@ -54,23 +54,11 @@ io.on("connection", (socket) => {
 
     // Search through existing games to end any game the disconnecting client
     // might be playing.
-    let i = 0;
-    for (; i < games.length; ++i) {
-      let otherClient = undefined;
-      if (games[i][0].id == socket.id)
-        otherClient = games[i][1];
-      else if (games[i][1].id == socket.id)
-        otherClient = games[i][0];
-
-      if (otherClient)
-        otherClient.emit("gameOver", {reason : "opponent left"});
-
-      break;
-    }
-
-    // Remove the finished game.
-    if (i < games.length)
-      endGame(games[i], "player disconnection");
+    for (let i = 0; i < games.length; ++i)
+      if (games[i][0].id == socket.id || games[i][1].id == socket.id) {
+        endGame(games[i], "player disconnection");
+        break;
+      }
 
     console.log("[client-" + socket.id + "] disconnected (" + reason + ").");
   });
@@ -102,6 +90,18 @@ io.on("connection", (socket) => {
                   "] request granted, starting game...");
       startGame(other_player, socket);
     }
+  });
+
+  // Handler for players returning to the lobby.
+  socket.on("lobby", () => {
+    // Verify that the player doesn't have any ongoing games.
+    for (let i = 0; i < games.length; ++i)
+      if (games[i][0].id == socket.id || games[i][1].id == socket.id)
+        return;
+
+    // If everything is fine, change the status of the client.
+    socket.status = "lobby";
+    console.log("[client-" + socket.id + "] returning to lobby.");
   });
 
   // Add to the array of connected clients.
@@ -161,6 +161,17 @@ let startGame = function(player1, player2) {
 
 // End a game before it's finished.
 let endGame = function(game, reason) {
+  game[2].turn = 0;
+
+  game[0].emit("gameState", game[2]);
+  game[1].emit("gameState", game[2]);
+
+  game[0].emit("gameOver", reason);
+  game[1].emit("gameOver", reason);
+
+  // Remove the game from the array.
+  games = games.filter((g) => { return g[2] !== game[2]; });
+
   console.log("[  game-" + game[2].id + "] ending due to " + reason);
 };
 

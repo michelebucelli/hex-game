@@ -130,6 +130,7 @@ let bottom_bar = undefined;           // Bottom bar.
 let help = undefined;                 // Help text (before starting game).
 let moves_count = undefined;          // Moves counter.
 let highlighted_hex_info = undefined; // Highlighted hex coordinates indicator.
+let message = undefined;              // Message box.
 
 // UI update interval.
 let ui_update_interval = undefined;
@@ -161,6 +162,9 @@ let setup_ui = function() {
     help = document.getElementById("help");
     moves_count = document.getElementById("moves-count");
     highlighted_hex_info = document.getElementById("highlighted-hex");
+
+    message = document.getElementById("message");
+    message.style.backgroundColor = colors_board[0];
   }
 
   // Canvas and context.
@@ -190,15 +194,12 @@ let setup_ui = function() {
   }
 
   ui_update_interval = setInterval(function() {
-    if (game) {
-      // Redraw the board.
-      ctxt.fillStyle = "white";
-      ctxt.fillRect(0, 0, cnvs.width, cnvs.height);
+    // Redraw the board.
+    ctxt.fillStyle = "white";
+    ctxt.fillRect(0, 0, cnvs.width, cnvs.height);
 
+    if (game)
       draw_board(ctxt, game.board, highlighted_hex);
-    }
-
-    // Hide or show the join url.
   }, 1000.0 / 60);
 };
 
@@ -232,6 +233,7 @@ let setup_connection = function() {
     player_side = data;
     top_bar.style.backgroundColor = colors_board[player_side];
     bottom_bar.style.backgroundColor = colors_board[player_side];
+    message.style.backgroundColor = colors_board[player_side];
   });
 
   // Event fired when receiving the game state. This simply copies the state
@@ -254,10 +256,12 @@ let setup_connection = function() {
     your_info.hidden = false;
     your_info.innerText = "you are " + player_to_string(player_side);
     turn_info.hidden = false;
-    if (game.winner == 0)
+    if (game.winner == 0 && game.turn != 0)
       turn_info.innerText = player_to_string(game.turn) + "'s turn";
-    else
+    else if (game.winner != 0)
       turn_info.innerText = player_to_string(game.winner) + " wins";
+    else
+      turn_info.innerText = "";
 
     // Update bottom bar.
     help.hidden = true;
@@ -276,6 +280,30 @@ let setup_connection = function() {
 
     if (joinId)
       socket.emit("join", joinId);
+  });
+
+  socket.on("gameOver", (reason) => {
+    if (reason == "player disconnection") {
+      message.hidden = false;
+      message.innerText = "your opponent left. click to continue";
+      message.onclick = function() {
+        socket.emit("lobby");
+
+        message.hidden = true;
+        join_link.hidden = false;
+        your_info.hidden = true;
+        turn_info.hidden = true;
+        help.hidden = false;
+        moves_count.hidden = true;
+        highlighted_hex_info.hidden = true;
+
+        top_bar.style.backgroundColor = colors_board[0];
+        bottom_bar.style.backgroundColor = colors_board[0];
+        message.style.backgroundColor = colors_board[0];
+
+        game = undefined;
+      };
+    }
   });
 };
 
