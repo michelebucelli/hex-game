@@ -15,12 +15,12 @@ A Node.js multiplayer implementation of the [Hex board game](https://en.wikipedi
 
 ---
 
-### Contributing
+## Contributing
 Please report bugs and/or suggestions of any kind in the [issue tracker](https://github.com/michelebucelli/hex-game/issues). If you want to add some features feel free to open a pull request. Below you'll find a list of tasks that I'd like to implement in the future.
 
 ---
 
-### TODO list
+## TODO list
 - [ ] allow a disconnected player to resume a game;
 - [ ] allow to concede a game to the opponent;
 - [ ] highlight last move done by the opponent;
