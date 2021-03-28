@@ -22,8 +22,9 @@ Please report bugs and/or suggestions of any kind in the [issue tracker](https:/
 
 ## TODO list
 - [ ] allow to choose the size of the board;
-- [ ] support mobile (portrait mode);
+- [ ] swap rule;
 - [ ] allow a disconnected player to resume a game;
 - [ ] allow to concede a game to the opponent;
 - [ ] highlight last move done by the opponent;
 - [ ] show list of moves.
+- [ ] improve interface for mobile;
