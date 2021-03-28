@@ -123,17 +123,8 @@ let draw_board = function(ctxt, board, highlighted) {
 // USER INTERFACE //////////////////////////////////////////////////////////////
 
 // Handles to DOM elements.
-let cnvs = undefined;                 // Canvas.
-let ctxt = undefined;                 // Canvas context.
-let top_bar = undefined;              // Top bar.
-let join_link = undefined;            // Join link.
-let your_info = undefined;            // Info about the player.
-let turn_info = undefined;            // Info about current turn.
-let bottom_bar = undefined;           // Bottom bar.
-let help = undefined;                 // Help text (before starting game).
-let moves_count = undefined;          // Moves counter.
-let highlighted_hex_info = undefined; // Highlighted hex coordinates indicator.
-let message = undefined;              // Message box.
+let cnvs = undefined; // Canvas.
+let ctxt = undefined; // Canvas context.
 
 // UI update interval.
 let ui_update_interval = undefined;
@@ -148,53 +139,87 @@ let player_to_string = function(player) {
     return "undefined";
 };
 
-// Setup UI method.
-let setup_ui = function() {
-  // Top and bottom bars.
-  {
-    top_bar = document.getElementById("top-bar");
-    top_bar.style.backgroundColor = colors_board[0];
+// Desired board size.
+let board_size = board_size_default;
 
-    join_link = document.getElementById("join-link");
-    your_info = document.getElementById("your-info");
-    turn_info = document.getElementById("turn-info");
+// Desired swap rule.
+let swap_rule = swap_rule_default;
 
-    bottom_bar = document.getElementById("bottom-bar");
-    bottom_bar.style.backgroundColor = colors_board[0];
+// Setup lobby interface.
+let setup_ui_lobby = function() {
+  // Set color for top and bottom bars.
+  $(".bar").css("background-color", colors_board[0]);
 
-    help = document.getElementById("help");
-    moves_count = document.getElementById("moves-count");
-    highlighted_hex_info = document.getElementById("highlighted-hex");
+  // Board size slider.
+  let update_board_size = (new_size) => {
+    board_size = Math.min(Math.max(new_size, board_size_min), board_size_max);
 
-    message = document.getElementById("message");
-    message.style.backgroundColor = colors_board[0];
-  }
+    // Update marker position.
+    let left =
+        ((board_size - board_size_min) / (board_size_max - board_size_min) *
+         ($("#board-size #bar").width() - $("#board-size #marker").width()))
+            .toString();
+    $("#board-size #marker").css("left", left + "px").text(board_size);
 
-  // Canvas and context.
-  {
-    cnvs = document.getElementById("canvas");
-    ctxt = cnvs.getContext("2d");
+    if (socket)
+      socket.emit("settings",
+                  {"board_size" : board_size, "swap_rule" : swap_rule});
+  };
+  update_board_size(11);
 
-    // When moving over canvas, highlight hexagons.
-    cnvs.onmousemove = (e) => {
-      let cnvs_bounding_rect = cnvs.getBoundingClientRect();
-      let mouse_x = e.clientX - cnvs_bounding_rect.x;
-      let mouse_y = e.clientY - cnvs_bounding_rect.y;
+  $("#board-size #less")
+      .on("click", () => { update_board_size(board_size - 1); });
+  $("#board-size #more")
+      .on("click", () => { update_board_size(board_size + 1); });
 
-      highlighted_hex =
-          cnvs_to_hex(mouse_x - board_offset_x, mouse_y - board_offset_y,
-                      hex_radius, hex_margin);
-      highlighted_hex_info.innerText =
-          "(" + highlighted_hex.i + ", " + highlighted_hex.j + ")";
-    };
+  // Swap rule.
+  let set_swap_rule = (r) => {
+    swap_rule = r;
 
-    // When clicking on canvas, we apply the move if it is our turn.
-    cnvs.onclick = (e) => {
-      if (game && game.turn == player_side &&
-          game.board.tiles[highlighted_hex.i][highlighted_hex.j] == 0)
-        socket.emit("move", {i : highlighted_hex.i, j : highlighted_hex.j});
-    };
-  }
+    if (swap_rule)
+      $("#swap-rule #marker")
+          .addClass("blue")
+          .removeClass("red")
+          .css("right", "0")
+          .css("left", "")
+          .text("on");
+    else
+      $("#swap-rule #marker")
+          .addClass("red")
+          .removeClass("blue")
+          .css("right", "")
+          .css("left", "0")
+          .text("off");
+
+    if (socket)
+      socket.emit("settings",
+                  {"board_size" : board_size, "swap_rule" : swap_rule});
+  };
+  $("#swap-rule #wrapper").on("click", () => { set_swap_rule(!swap_rule); });
+};
+
+// Setup game interface.
+let setup_ui_game = function() {
+  cnvs = document.getElementById("canvas");
+  ctxt = cnvs.getContext("2d");
+
+  // When moving over canvas, highlight hexagons.
+  cnvs.onmousemove = (e) => {
+    let cnvs_bounding_rect = cnvs.getBoundingClientRect();
+    let mouse_x = e.clientX - cnvs_bounding_rect.x;
+    let mouse_y = e.clientY - cnvs_bounding_rect.y;
+
+    highlighted_hex =
+        cnvs_to_hex(mouse_x - board_offset_x, mouse_y - board_offset_y,
+                    hex_radius, hex_margin);
+  };
+
+  // When clicking on canvas, we apply the move if it is our turn.
+  cnvs.onclick = (e) => {
+    if (game && game.turn == player_side &&
+        game.board.tiles[highlighted_hex.i][highlighted_hex.j] == 0)
+      socket.emit("move", {i : highlighted_hex.i, j : highlighted_hex.j});
+  };
 
   window.onresize = () => {
     if (game) {
@@ -223,15 +248,68 @@ let setup_ui = function() {
       }
     }
   };
+};
 
-  ui_update_interval = setInterval(function() {
-    // Redraw the board.
-    ctxt.fillStyle = "white";
-    ctxt.fillRect(0, 0, cnvs.width, cnvs.height);
+// Setup UI method.
+let setup_ui = function() {
+  setup_ui_lobby();
+  setup_ui_game();
+};
 
-    if (game)
-      draw_board(ctxt, game.board, highlighted_hex);
-  }, 1000.0 / 60);
+// Update game UI.
+let update_ui_game = function() {
+  $("#your-info").text("you are " + player_to_string(player_side));
+
+  if (game.winner == 0 && game.turn != 0)
+    $("#turn-info").text(player_to_string(game.turn) + "'s turn");
+  else if (game.winnder != 0)
+    $("#turn-info").text(player_to_string(game.winner) + " wins");
+  else
+    $("#turn-info").text("");
+
+  $("#moves-count").text("moves: " + game.moves);
+
+  $("#highlighted-hex")
+      .text("(" + highlighted_hex.i + ", " + highlighted_hex.j + ")");
+};
+
+// Switch UI state.
+let switch_ui_state = function(state) {
+  // Clear interval.
+  clearInterval(ui_update_interval);
+
+  // Hide and show stuff.
+  if (state == "lobby") {
+    $("#lobby").show();
+    $("#game").hide();
+  } else if (state == "game") {
+    $("#lobby").hide();
+    $("#game").show();
+
+    // Adjust canvas size.
+    window.onresize();
+
+    ui_update_interval = setInterval(function() {
+      // Redraw the board.
+      ctxt.fillStyle = "white";
+      ctxt.fillRect(0, 0, cnvs.width, cnvs.height);
+
+      if (game)
+        draw_board(ctxt, game.board, highlighted_hex);
+    }, 1000.0 / 60);
+  }
+};
+
+// Show a message.
+let message = function(text, onclick) {
+  $("#message")
+      .css("background-color", colors_board[player_side])
+      .text(text)
+      .show()
+      .on("click", () => {
+        onclick();
+        $("#message").hide();
+      });
 };
 
 // GAME CONTROL/////////////////////////////////////////////////////////////////
@@ -255,16 +333,14 @@ let setup_connection = function() {
   socket.on("id", (data) => {
     socket.id = data;
 
-    join_link.href = window.location.origin + "?join=" + socket.id;
-    join_link.innerText = join_link.href;
+    let url = window.location.origin + "?join=" + socket.id;
+    $("#join-link").attr("href", url).text(url);
   });
 
   // Event fired to set player side.
   socket.on("playerSide", (data) => {
     player_side = data;
-    top_bar.style.backgroundColor = colors_board[player_side];
-    bottom_bar.style.backgroundColor = colors_board[player_side];
-    message.style.backgroundColor = colors_board[player_side];
+    $("#game .bar").css("background-color", colors_board[player_side]);
   });
 
   // Event fired when receiving the game state. This simply copies the state
@@ -273,28 +349,9 @@ let setup_connection = function() {
     // Store game state.
     game = data;
 
-    // Adjust canvas size.
-    window.onresize();
-
-    // Update top bar.
-    join_link.hidden = true;
-    your_info.hidden = false;
-    your_info.innerText = "you are " + player_to_string(player_side);
-    turn_info.hidden = false;
-    if (game.winner == 0 && game.turn != 0)
-      turn_info.innerText = player_to_string(game.turn) + "'s turn";
-    else if (game.winner != 0)
-      turn_info.innerText = player_to_string(game.winner) + " wins";
-    else
-      turn_info.innerText = "";
-
-    // Update bottom bar.
-    help.hidden = true;
-    moves_count.hidden = false;
-    moves_count.innerText = "moves: " + game.moves;
-    highlighted_hex_info.hidden = false;
-    highlighted_hex_info.innerText =
-        "(" + highlighted_hex.i + ", " + highlighted_hex.j + ")";
+    // Update UI.
+    switch_ui_state("game");
+    update_ui_game();
   });
 
   // When the connection is ready, if there's a join parameter in the URL, we
@@ -308,31 +365,19 @@ let setup_connection = function() {
   });
 
   socket.on("gameOver", (reason) => {
+    let msg = "";
     if (reason == "player disconnection")
-      message.innerText = "your opponent left. click to continue";
+      msg = "your opponent left. click to continue";
     else if (reason == "player 1 wins")
-      message.innerText = player_to_string(1) + " wins. click to continue";
+      msg = player_to_string(1) + " wins. click to continue";
     else if (reason == "player 2 wins")
-      message.innerText = player_to_string(2) + " wins. click to continue";
+      msg = player_to_string(2) + " wins. click to continue";
 
-    message.hidden = false;
-    message.onclick = function() {
+    message(msg, function() {
       socket.emit("lobby");
-
-      message.hidden = true;
-      join_link.hidden = false;
-      your_info.hidden = true;
-      turn_info.hidden = true;
-      help.hidden = false;
-      moves_count.hidden = true;
-      highlighted_hex_info.hidden = true;
-
-      top_bar.style.backgroundColor = colors_board[0];
-      bottom_bar.style.backgroundColor = colors_board[0];
-      message.style.backgroundColor = colors_board[0];
-
+      switch_ui_state("lobby");
       game = undefined;
-    };
+    });
   });
 };
 

@@ -44,6 +44,10 @@ io.on("connection", (socket) => {
   // connect to its game.
   socket.status = "lobby";
 
+  // Set default settings.
+  socket.board_size = hex.board_size_default;
+  socket.swap_rule = hex.swap_rule_default;
+
   // Send the id to the client, so that he knows his join link.
   socket.emit("id", socket.id);
 
@@ -105,6 +109,16 @@ io.on("connection", (socket) => {
     console.log("[client-" + socket.id + "] returning to lobby.");
   });
 
+  // Handler for updating game settings.
+  socket.on("settings", (data) => {
+    socket.board_size = Math.min(Math.max(data.board_size, hex.board_size_min),
+                                 hex.board_size_max);
+    socket.swap_rule = Boolean(data.swap_rule);
+
+    console.log("[client-" + socket.id + "] board size: " + socket.board_size +
+                ", swap rule: " + socket.swap_rule + ".");
+  });
+
   // Add to the array of connected clients.
   clients.push(socket);
 
@@ -119,7 +133,7 @@ let games = [];
 
 // Start a new game between two players.
 let startGame = function(player1, player2) {
-  let game = new hex.Game(13);
+  let game = new hex.Game(player1.board_size);
   let gameEntry = [ player1, player2, game ];
   game.id = newId(games);
 

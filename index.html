@@ -2,6 +2,8 @@
 
 <html>
     <head>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
         <script src="/socket.io/socket.io.js"></script>
         <script src="./common.js"></script>
         <script src="./client.js"></script>
@@ -10,18 +12,37 @@
     </head>
 
     <body onload="setup()">
-        <div id="top-bar" class="bar">
-            <a id="join-link" href=""></a>
-            <span id="your-info" hidden="true"></span>
-            <span id="turn-info" hidden="true"></span>
+        <div id="lobby">
+            <div class="bar top">Choose your game settings, then send the link to your friend</div>
+            <div class="main-wrapper">
+                <div id="join-link-wrapper" class="text">
+                    <span id="label">join link:</span>
+                    <a href="" id="join-link"></a>
+                </div>
+
+                <div id="board-size" class="slider">
+                    <span id="label">board size:</span>
+                    <span id="less" class="btn red">-</span><span id="bar" class="grey"><span id="marker" class="red">11</span></span><span id="more" class="btn red">+</span>
+                </div>
+
+                <div id="swap-rule" class="switch">
+                    <span id="label">swap rule:</span>
+                    <span id="wrapper" class="grey"><span id="marker" class="red">off</span></span>
+                </div>
+            </div>
+            <div class="bar bottom"></div>
         </div>
 
-        <canvas id="canvas" width="800" height="600"></canvas>
-
-        <div id="bottom-bar" class="bar">
-            <span id="help">Send the link on top to a friend to start a game</span>
-            <span id="moves-count" hidden="true"></span>
-            <span id="highlighted-hex" hidden="true"></span>
+        <div id="game" hidden="true">
+            <div class="bar top">
+                <span id="your-info"></span>
+                <span id="turn-info"></span>
+            </div>
+            <canvas id="canvas" width="800" height="600"></canvas>
+            <div class="bar bottom">
+                <span id="moves-count"></span>
+                <span id="highlighted-hex"></span>
+            </div>
         </div>
 
         <div id="message" hidden="true"></div>

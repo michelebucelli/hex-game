@@ -2,15 +2,33 @@ body {
     font-family: monospace;
     font-weight: bolder;
     font-size: 18px;
+    user-select: none;
 }
 
-#canvas {
-    position: absolute;
+a { color: black; }
+
+.grey {
+    background-color: #D0D0D0;
+}
+
+.grey.dark {
+    background-color: #808080;
+}
+
+.red {
+    background-color: #FF6000;
+}
+
+.blue {
+    background-color: #0080FF;
+}
+
+.top {
     top: 0;
+}
+
+.bottom {
     bottom: 0;
-    right: 0;
-    left: 0;
-    margin: auto;
 }
 
 .bar {
@@ -28,16 +46,92 @@ body {
     z-index: 10;
 }
 
-#top-bar { top: 0; }
+.main-wrapper {
+    position: absolute;
+    top: 42px;
+}
+
+.slider, .switch, .text {
+    vertical-align: middle;
+    line-height: 42px;
+    height: 42px;
+    margin: 8px;
+    position: relative;
+}
+
+.slider #label, .switch #label, .text #label {
+    display: inline-block;
+    width: 120px;
+    height: 42px;
+    text-align: right;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.text #join-link {
+    position: absolute;
+    left: 130px;
+    width: 600px;
+}
+
+.slider #less {
+    position: absolute;
+    left: 130px;
+}
+
+.slider #bar {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 172px;
+    height: 42px;
+    width: 200px;
+    background-color: #D0D0D0;
+}
+
+.slider #more {
+    position: absolute;
+    left: 372px;
+}
+
+.slider #marker, .switch #marker {
+    display: inline-block;
+    position: absolute;
+    width: 42px;
+    text-align: center;
+}
+
+.switch #wrapper {
+    display: inline-block;
+    width: 84px;
+    height: 42px;
+    cursor: pointer;
+    position: absolute;
+    left: 130px;
+}
+
+.btn {
+    display: inline-block;
+    width: 42px;
+    height: 42px;
+    text-align: center;
+    cursor: pointer;
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+}
 
 #turn-info, #highlighted-hex {
     position: absolute;
     right: 8px;
 }
-
-#bottom-bar { bottom: 0 }
-
-a { color: black; }
 
 #message {
     position: absolute;

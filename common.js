@@ -1,3 +1,19 @@
+// DEFAULT GAME SETTINGS ///////////////////////////////////////////////////////
+
+// Default board size.
+const board_size_default = 11;
+
+// Maximum board size.
+const board_size_max = 16;
+
+// Minimum board size.
+const board_size_min = 6;
+
+// Default swap rule.
+const swap_rule_default = false;
+
+// GAME LOGIC //////////////////////////////////////////////////////////////////
+
 // Retrieve tiles that are adjacent to a given tile.
 let adjacentTiles = function(i, j, size) {
   let tiles = [];
@@ -141,5 +157,12 @@ let HexGame = function(board_size) {
 // Expose stuff for NodeJS /////////////////////////////////////////////////////
 
 if (typeof module !== "undefined") {
-  module.exports = {"Game" : HexGame, "Board" : HexBoard};
+  module.exports = {
+    "Game" : HexGame,
+    "Board" : HexBoard,
+    "board_size_default" : board_size_default,
+    "board_size_min" : board_size_min,
+    "board_size_max" : board_size_max,
+    "swap_rule_default" : swap_rule_default
+  };
 }
