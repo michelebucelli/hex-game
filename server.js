@@ -119,7 +119,7 @@ let games = [];
 
 // Start a new game between two players.
 let startGame = function(player1, player2) {
-  let game = new hex.Game(16);
+  let game = new hex.Game(13);
   let gameEntry = [ player1, player2, game ];
   game.id = newId(games);
 

@@ -21,6 +21,7 @@ Please report bugs and/or suggestions of any kind in the [issue tracker](https:/
 ---
 
 ## TODO list
+- [ ] allow to choose the dimension of the board;
 - [ ] allow a disconnected player to resume a game;
 - [ ] allow to concede a game to the opponent;
 - [ ] highlight last move done by the opponent;
