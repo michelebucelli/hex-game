@@ -21,9 +21,8 @@ Please report bugs and/or suggestions of any kind in the [issue tracker](https:/
 ---
 
 ## TODO list
-- [ ] swap rule;
-- [ ] allow a disconnected player to resume a game;
 - [ ] allow to concede a game to the opponent;
+- [ ] allow a disconnected player to resume a game;
 - [ ] highlight last move done by the opponent;
 - [ ] show list of moves.
 - [ ] improve interface for mobile;
