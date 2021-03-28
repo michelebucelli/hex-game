@@ -5,10 +5,13 @@ const sqrt_3 = Math.sqrt(3);
 const sqrt_3_halves = sqrt_3 / 2.0;
 
 // Hex radius.
-const hex_radius = 24;
+let hex_radius = 24;
+
+// Maximum hex radius.
+const max_hex_radius = 24;
 
 // Hex margin.
-const hex_margin = 2;
+let hex_margin = 2;
 
 // Board offset.
 let board_offset_x = hex_radius * sqrt_3_halves;
@@ -193,6 +196,34 @@ let setup_ui = function() {
     };
   }
 
+  window.onresize = () => {
+    if (game) {
+      // Adjust hexagon dimension according to the available window size.
+      let desired_hex_radius_w =
+          window.innerWidth /
+          (sqrt_3 + 1.5 * sqrt_3 * (game.board.size - 1) * 13.0 / 12.0);
+      let desired_hex_radius_h =
+          (window.innerHeight - 2 * 42) /
+          (2.0 * sqrt_3 + 1.5 * (game.board.size - 1) * 13.0 / 12.0);
+      hex_radius =
+          Math.min(desired_hex_radius_w, desired_hex_radius_h, max_hex_radius);
+      hex_margin = hex_radius / 12;
+
+      let new_canvas_width = Math.ceil(
+          2 * board_offset_x +
+          1.5 * (game.board.size - 1) * (sqrt_3 * (hex_radius + hex_margin)));
+      let new_canvas_height =
+          Math.ceil(2 * board_offset_y +
+                    1.5 * (hex_radius + hex_margin) * (game.board.size - 1));
+
+      if (new_canvas_width != canvas.width ||
+          new_canvas_height != canvas.height) {
+        canvas.width = new_canvas_width;
+        canvas.height = new_canvas_height;
+      }
+    }
+  };
+
   ui_update_interval = setInterval(function() {
     // Redraw the board.
     ctxt.fillStyle = "white";
@@ -239,17 +270,11 @@ let setup_connection = function() {
   // Event fired when receiving the game state. This simply copies the state
   // into the game variable.
   socket.on("gameState", (data) => {
-    // Adjust canvas size to match that of the board.
-    if (!game) {
-      cnvs.width =
-          2 * board_offset_x +
-          1.5 * (data.board.size - 1) * (sqrt_3 * (hex_radius + hex_margin));
-      cnvs.height = 2 * board_offset_y +
-                    (1.5 * (hex_radius + hex_margin)) * (data.board.size - 1);
-    }
-
     // Store game state.
     game = data;
+
+    // Adjust canvas size.
+    window.onresize();
 
     // Update top bar.
     join_link.hidden = true;
