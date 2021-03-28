@@ -1,8 +1,24 @@
 {
-  "name": "hex-node",
+  "name": "hex-game",
   "version": "1.0.0",
-  "description": "node.js multiplayer implementation of the tabletop game Hex",
-  "author": "Michele Bucelli",
+  "description": "multiplayer implementation of the tabletop game Hex",
+  "keywords": [
+    "game",
+    "board game",
+    "multiplayer",
+    "hex"
+  ],
+  "homepage": "https://github.com/michelebucelli/hex-game",
+  "bugs": {
+    "url": "https://github.com/michelebucelli/hex-game/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michelebucelli/hex-game"
+  },
+  "author": "Michele Bucelli <michelebucelli415@gmail.com>",
+  "license": "GPL-3.0",
+  "main": "server.js",
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^4.0.0"
