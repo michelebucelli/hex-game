@@ -96,7 +96,8 @@ io.on("connection", (socket) => {
   socket.on("lobby", () => {
     // Verify that the player doesn't have any ongoing games.
     for (let i = 0; i < games.length; ++i)
-      if (games[i][0].id == socket.id || games[i][1].id == socket.id)
+      if ((games[i][0].id == socket.id || games[i][1].id == socket.id) &&
+          !games[i][2].finished)
         return;
 
     // If everything is fine, change the status of the client.
@@ -119,9 +120,10 @@ let games = [];
 // Start a new game between two players.
 let startGame = function(player1, player2) {
   let game = new hex.Game(16);
+  let gameEntry = [ player1, player2, game ];
   game.id = newId(games);
 
-  games.push([ player1, player2, game ]);
+  games.push(gameEntry);
 
   player1.status = "game";
   player2.status = "game";
@@ -138,8 +140,10 @@ let startGame = function(player1, player2) {
   // it, then transmit again the state to both clients.
   player1.on("move", (move) => {
     if (game.turn == 1 && game.move(move.i, move.j)) {
-      if (game.finished)
+      if (game.finished) {
         console.log("[  game-" + game.id + "] finished! player 1 wins.");
+        endGame(gameEntry, "player 1 wins");
+      }
 
       player1.emit("gameState", game);
       player2.emit("gameState", game);
@@ -147,8 +151,10 @@ let startGame = function(player1, player2) {
   });
   player2.on("move", (move) => {
     if (game.turn == 2 && game.move(move.i, move.j)) {
-      if (game.finished)
+      if (game.finished) {
         console.log("[  game-" + game.id + "] finished! player 2 wins.");
+        endGame(game, "player 2 wins");
+      }
 
       player1.emit("gameState", game);
       player2.emit("gameState", game);
@@ -164,9 +170,9 @@ let endGame = function(game, reason) {
   game[2].turn = 0;
 
   game[0].emit("gameState", game[2]);
-  game[1].emit("gameState", game[2]);
-
   game[0].emit("gameOver", reason);
+
+  game[1].emit("gameState", game[2]);
   game[1].emit("gameOver", reason);
 
   // Remove the game from the array.

@@ -308,27 +308,31 @@ let setup_connection = function() {
   });
 
   socket.on("gameOver", (reason) => {
-    if (reason == "player disconnection") {
-      message.hidden = false;
+    if (reason == "player disconnection")
       message.innerText = "your opponent left. click to continue";
-      message.onclick = function() {
-        socket.emit("lobby");
+    else if (reason == "player 1 wins")
+      message.innerText = player_to_string(1) + " wins. click to continue";
+    else if (reason == "player 2 wins")
+      message.innerText = player_to_string(2) + " wins. click to continue";
 
-        message.hidden = true;
-        join_link.hidden = false;
-        your_info.hidden = true;
-        turn_info.hidden = true;
-        help.hidden = false;
-        moves_count.hidden = true;
-        highlighted_hex_info.hidden = true;
+    message.hidden = false;
+    message.onclick = function() {
+      socket.emit("lobby");
 
-        top_bar.style.backgroundColor = colors_board[0];
-        bottom_bar.style.backgroundColor = colors_board[0];
-        message.style.backgroundColor = colors_board[0];
+      message.hidden = true;
+      join_link.hidden = false;
+      your_info.hidden = true;
+      turn_info.hidden = true;
+      help.hidden = false;
+      moves_count.hidden = true;
+      highlighted_hex_info.hidden = true;
 
-        game = undefined;
-      };
-    }
+      top_bar.style.backgroundColor = colors_board[0];
+      bottom_bar.style.backgroundColor = colors_board[0];
+      message.style.backgroundColor = colors_board[0];
+
+      game = undefined;
+    };
   });
 };
 
