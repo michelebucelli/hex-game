@@ -166,4 +166,5 @@ app.get("/style.css",
         (req, res) => { res.sendFile(__dirname + "/style.css"); });
 
 // Start the HTTP server.
-http.listen(3000, () => { console.log("[server  ] listening on *:3000"); });
+let port = process.env.PORT || 3000;
+http.listen(port, () => { console.log("[server  ] listening on *:3000"); });
