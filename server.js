@@ -153,7 +153,7 @@ let startGame = function(player1, player2) {
     if (game.turn == 2 && game.move(move.i, move.j)) {
       if (game.finished) {
         console.log("[  game-" + game.id + "] finished! player 2 wins.");
-        endGame(game, "player 2 wins");
+        endGame(gameEntry, "player 2 wins");
       }
 
       player1.emit("gameState", game);
