@@ -27,6 +27,11 @@ const colors_board = [
   "#FF6000", // Player 1.
   "#0080FF"  // Player 2.
 ];
+const colors_board_highlight = [
+  "#A0A0A0", // Empty tile.
+  "#DD3000", // Player 1.
+  "#0030DD"  // Player 2.
+];
 
 // Get canvas coordinates of a hexagon.
 let hex_to_cnvs = function(i, j, radius, margin) {
@@ -94,7 +99,10 @@ let draw_hex = function(ctxt, x, y, radius, color, stroke_color) {
 };
 
 // Draw the board on the game canvas.
-let draw_board = function(ctxt, board, highlighted) {
+let draw_board = function(ctxt, board, highlighted, last_move) {
+  if (last_move)
+    console.log("last_move = " + last_move.toString());
+
   for (let i = 0; i < board.tiles.length; ++i)
     for (let j = 0; j < board.tiles[i].length; ++j)
       if (board.tiles[i][j] >= 0) {
@@ -106,17 +114,14 @@ let draw_board = function(ctxt, board, highlighted) {
         if (i == 0 || j == 0 || i == board.tiles.length - 1 ||
             j == board.tiles.length - 1)
           stroke_color = "black";
+        else if (last_move && i == last_move[1] && j == last_move[2])
+          stroke_color = "white";
         else if (i == highlighted_hex.i && j == highlighted_hex.j)
           stroke_color = colors_board[player_side];
 
-        draw_hex(ctxt, x, y, hex_radius, colors_board[board.tiles[i][j]],
-                 stroke_color);
+        let fill_color = colors_board[board.tiles[i][j]];
 
-        if (i == 0 || j == 0 || i == board.tiles.length - 1 ||
-            j == board.tiles.length - 1) {
-          draw_hex(ctxt, x, y, hex_radius, colors_board[board.tiles[i][j]],
-                   "black");
-        }
+        draw_hex(ctxt, x, y, hex_radius, fill_color, stroke_color);
       }
 };
 
@@ -214,6 +219,9 @@ let setup_ui_game = function() {
     highlighted_hex =
         cnvs_to_hex(mouse_x - board_offset_x, mouse_y - board_offset_y,
                     hex_radius, hex_margin);
+
+    $("#highlighted-hex")
+        .text("(" + highlighted_hex.i + ", " + highlighted_hex.j + ")");
   };
 
   // When clicking on canvas, we apply the move if it is our turn.
@@ -269,12 +277,9 @@ let update_ui_game = function() {
   else
     $("#turn-info").text("");
 
-  $("#moves-count").text("moves: " + game.moves);
+  $("#moves-count").text("moves: " + game.moves.length);
 
-  $("#highlighted-hex")
-      .text("(" + highlighted_hex.i + ", " + highlighted_hex.j + ")");
-
-  if (game.swap_rule && game.moves == 1 && game.turn == player_side &&
+  if (game.swap_rule && game.moves.length == 1 && game.turn == player_side &&
       !game.swapped)
     $("#swap")
         .css("background-color", colors_board[player_side])
@@ -305,7 +310,9 @@ let switch_ui_state = function(state) {
       ctxt.fillRect(0, 0, cnvs.width, cnvs.height);
 
       if (game)
-        draw_board(ctxt, game.board, highlighted_hex);
+        draw_board(ctxt, game.board, highlighted_hex,
+                   game.moves.length > 0 ? game.moves[game.moves.length - 1]
+                                         : undefined);
     }, 1000.0 / 60);
   }
 };

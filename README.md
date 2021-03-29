@@ -21,7 +21,6 @@ Please report bugs and/or suggestions of any kind in the [issue tracker](https:/
 ---
 
 ## TODO list
-- [ ] highlight last move done by the opponent;
 - [ ] show list of moves;
 - [ ] improve interface for mobile;
 - [ ] allow a disconnected player to resume a game;

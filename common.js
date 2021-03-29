@@ -123,8 +123,8 @@ let HexGame = function(board_size, swap_rule) {
   // Game board.
   this.board = new HexBoard(board_size);
 
-  // Number of moves so far.
-  this.moves = 0;
+  // List of all the moves.
+  this.moves = [];
 
   // Whose turn it is.
   this.turn = 1;
@@ -144,7 +144,7 @@ let HexGame = function(board_size, swap_rule) {
   // Apply a move to the board and go to next player if the move was successful.
   this.move = function(i, j) {
     if (this.board.move(this.turn, i, j)) {
-      ++this.moves;
+      this.moves.push([ this.turn, i, j ]);
       this.finished = this.board.checkVictory(this.turn);
 
       if (!this.finished)
