@@ -5,13 +5,13 @@ const sqrt_3 = Math.sqrt(3);
 const sqrt_3_halves = sqrt_3 / 2.0;
 
 // Hex radius.
-let hex_radius = 24;
+let hex_radius = 32;
 
 // Maximum hex radius.
-const max_hex_radius = 24;
+const max_hex_radius = 32;
 
 // Hex margin.
-let hex_margin = 2;
+let hex_margin = 3;
 
 // Board offset.
 let board_offset_x = hex_radius * sqrt_3_halves;
