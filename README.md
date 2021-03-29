@@ -21,8 +21,10 @@ Please report bugs and/or suggestions of any kind in the [issue tracker](https:/
 ---
 
 ## TODO list
-- [ ] allow to concede a game to the opponent;
-- [ ] allow a disconnected player to resume a game;
 - [ ] highlight last move done by the opponent;
-- [ ] show list of moves.
+- [ ] show list of moves;
 - [ ] improve interface for mobile;
+- [ ] allow a disconnected player to resume a game;
+- [ ] generally improve feedback for the player (ideas welcome!):
+  - make clearer whose turn it is;
+  - make clearer when swap rule is used by the opponent;

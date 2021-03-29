@@ -157,11 +157,8 @@ let startGame = function(player1, player2) {
   // it, then transmit again the state to both clients.
   player1.on("move", (move) => {
     if (game.turn == player1.side && game.move(move.i, move.j)) {
-      if (game.finished) {
-        console.log("[  game-" + game.id + "] finished! player " +
-                    player1.side + " wins.");
+      if (game.finished)
         endGame(gameEntry, "player " + player1.side + " wins");
-      }
 
       player1.emit("gameState", game);
       player2.emit("gameState", game);
@@ -169,14 +166,29 @@ let startGame = function(player1, player2) {
   });
   player2.on("move", (move) => {
     if (game.turn == player2.side && game.move(move.i, move.j)) {
-      if (game.finished) {
-        console.log("[  game-" + game.id + "] finished! player " +
-                    player2.side + " wins.");
+      if (game.finished)
         endGame(gameEntry, "player " + player2.side + " wins");
-      }
 
       player1.emit("gameState", game);
       player2.emit("gameState", game);
+    }
+  });
+
+  // Surrender.
+  player1.on("surrender", () => {
+    if (!game.finished) {
+      game.finished = true;
+      game.winner = 2;
+
+      endGame(gameEntry, "player " + player1.side + " surrenders");
+    }
+  });
+  player2.on("surrender", () => {
+    if (!game.finished) {
+      game.finished = true;
+      game.winner = 2;
+
+      endGame(gameEntry, "player " + player2.side + " surrenders");
     }
   });
 
@@ -241,7 +253,7 @@ let endGame = function(game, reason) {
   // Remove the game from the array.
   games = games.filter((g) => { return g[2] !== game[2]; });
 
-  console.log("[  game-" + game[2].id + "] ending due to " + reason);
+  console.log("[  game-" + game[2].id + "] ending due to: " + reason);
 };
 
 // HTTP SERVER /////////////////////////////////////////////////////////////////

@@ -195,7 +195,9 @@ let setup_ui_lobby = function() {
       socket.emit("settings",
                   {"board_size" : board_size, "swap_rule" : swap_rule});
   };
+
   $("#swap-rule #wrapper").on("click", () => { set_swap_rule(!swap_rule); });
+  $("#surrender").on("click", () => { socket.emit("surrender"); });
 };
 
 // Setup game interface.
@@ -349,6 +351,7 @@ let setup_connection = function() {
   socket.on("playerSide", (data) => {
     player_side = data;
     $("#game .bar").css("background-color", colors_board[player_side]);
+    $("#surrender").css("background-color", colors_board[player_side]);
   });
 
   // Event fired when receiving the game state. This simply copies the state
@@ -380,6 +383,12 @@ let setup_connection = function() {
       msg = player_to_string(1) + " wins. click to continue";
     else if (reason == "player 2 wins")
       msg = player_to_string(2) + " wins. click to continue";
+    else if (reason == "player 1 surrenders")
+      msg = player_to_string(2) + " wins, " + player_to_string(1) +
+            " surrenders. click to continue";
+    else if (reason == "player 2 surrenders")
+      msg = player_to_string(1) + " wins, " + player_to_string(2) +
+            " surrenders. click to continue";
 
     message(msg, function() {
       socket.emit("lobby");
