@@ -182,7 +182,8 @@ let startGame = function(player1, player2) {
 
   // Swap rule.
   player1.on("swap", () => {
-    if (game.moves == 1 && game.turn == player1.side && !game.swapped) {
+    if (game.swap_rule && game.moves == 1 && game.turn == player1.side &&
+        !game.swapped) {
       let tmp = player1.side;
       player1.side = player2.side;
       player2.side = tmp;
@@ -202,7 +203,8 @@ let startGame = function(player1, player2) {
     }
   });
   player2.on("swap", () => {
-    if (game.moves == 1 && game.turn == player2.side && !game.swapped) {
+    if (game.swap_rule && game.moves == 1 && game.turn == player2.side &&
+        !game.swapped) {
       let tmp = player1.side;
       player1.side = player2.side;
       player2.side = tmp;
