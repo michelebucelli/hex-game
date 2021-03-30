@@ -133,7 +133,8 @@ let games = [];
 
 // Start a new game between two players.
 let startGame = function(player1, player2) {
-  let game = new hex.Game(player1.board_size, player1.swap_rule);
+  // Here we increase the size by 2 to account for boundary tiles.
+  let game = new hex.Game(player1.board_size + 2, player1.swap_rule);
   let gameEntry = [ player1, player2, game ];
   game.id = newId(games);
 
