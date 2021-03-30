@@ -27,3 +27,4 @@ Please report bugs and/or suggestions of any kind in the [issue tracker](https:/
 - [ ] generally improve feedback for the player (ideas welcome!):
   - make clearer whose turn it is;
   - make clearer when swap rule is used by the opponent;
+- [ ] keyboard controls;
